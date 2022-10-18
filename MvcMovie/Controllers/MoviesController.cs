@@ -20,10 +20,20 @@ namespace MvcMovie.Controllers
         }
 
         // GET: Movies
-        public async Task<IActionResult> Index()
-        {
-              return View(await _context.Movie.ToListAsync());
-        }
+        
+            public async Task<IActionResult> Index(string id)
+            {
+                var movies = from m in _context.Movie
+                             select m;
+            
+                if (!String.IsNullOrEmpty(id))
+                {
+                    movies = movies.Where(s => s.Title!.Contains(id));
+                }
+
+                return View(await movies.ToListAsync());
+            }
+        
 
         // GET: Movies/Details/5
         public async Task<IActionResult> Details(int? id)
@@ -34,7 +44,7 @@ namespace MvcMovie.Controllers
             }
 
             var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (movie == null)
             {
                 return NotFound();
@@ -88,7 +98,7 @@ namespace MvcMovie.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Title,ReleaseDate,Genre,Price")] Movie movie)
         {
-            if (id != movie.ID)
+            if (id != movie.Id)
             {
                 return NotFound();
             }
@@ -102,7 +112,7 @@ namespace MvcMovie.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!MovieExists(movie.ID))
+                    if (!MovieExists(movie.Id))
                     {
                         return NotFound();
                     }
@@ -125,7 +135,7 @@ namespace MvcMovie.Controllers
             }
 
             var movie = await _context.Movie
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.Id == id);
             if (movie == null)
             {
                 return NotFound();
@@ -155,7 +165,7 @@ namespace MvcMovie.Controllers
 
         private bool MovieExists(int id)
         {
-          return _context.Movie.Any(e => e.ID == id);
+          return _context.Movie.Any(e => e.Id == id);
         }
     }
 }
